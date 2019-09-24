@@ -27,6 +27,12 @@ From: sriggi/caesar-base
 		- convolversub: Prepare a skymodel convolution script and submit it
 		- makefilelist: Search files/directories according to filter and dump names to list
 		- jobkiller: Kill jobs submitted in batch system listed in input filelist
+		- sselector: Apply selection cuts to sources and return selected sample
+		- sregionsel: Select sources inside DS9 regions
+		- sregionmatchfinder: Tag sources (real/fake/unknown) if matching with DS9 regions 
+		- sregiontagger: Tag sources (real/fake/unknown,...) matching with DS9 regions with region provided tags
+		- scatmatchfinder: Find cross-matches with list of Caesar source catalogs
+		- sastrocatmatchfinder: Find cross-matches with list of Astronomical ascii catalogs
 		
 	To launch an app do the following:
 	
@@ -152,10 +158,12 @@ From: sriggi/caesar-base
 	cd "$SOFTDIR_SRCS"
 	if [ ! -d "$CAESAR_SRC_DIR" ] ; then
 		echo "Downloading caesar from github repository $CAESAR_URL..."
-		git clone "$CAESAR_URL"
+		#git clone "$CAESAR_URL"
+		git clone -b devel "$CAESAR_URL"
 	else
 		cd $CAESAR_SRC_DIR
-		git pull
+		#git pull
+		git pull origin devel
 	fi
 	
 	echo "Entering caesar cmake build dir $CAESAR_BUILD_DIR"
@@ -211,7 +219,8 @@ From: sriggi/caesar-base
 
 
 %runscript
-	exec echo "Run application with --app {readimg | fits2root | root2fits | sfinder | sfinderrun | sfindersub | saliencyfinder | bkgfinder | catalogcorr | skymodel | simulation | imaging | simulationsub | imagingsub | makefilelist | jobkiller }"
+	exec echo "Run application with --app {readimg | fits2root | root2fits | sfinder | sfinderrun | sfindersub | saliencyfinder | bkgfinder | catalogcorr | skymodel | simulation | imaging | simulationsub | imagingsub | makefilelist | jobkiller | sselector | sregionsel | sregionmatchfinder | sregiontagger | scatmatchfinder | sastrocatmatchfinder }"
+
 	
 %apprun readimg
 	exec ReadImg "$@"
@@ -267,6 +276,23 @@ From: sriggi/caesar-base
 %apprun jobkiller
 	exec /opt/Software/CAESAR/trunk/scripts/BatchJobKiller.sh "$@"
 
+%apprun sselector
+	exec SourceSelector "$@"
+
+%apprun sregionsel
+	exec SourceRegionSelector "$@"
+
+%apprun sregionmatchfinder
+	exec SourceRegionMatchFinder "$@"
+
+%apprun sregiontagger
+	exec SourceRegionTagger "$@"
+
+%apprun scatmatchfinder
+	exec SourceCatalogsMatchFinder "$@"
+
+%apprun sastrocatmatchfinder
+	exec SourceAstroCatalogsMatchFinder "$@"
 
 %apprun printenv
 	exec echo "PATH=$PATH CAESAR_DIR=$CAESAR_DIR"
