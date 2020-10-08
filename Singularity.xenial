@@ -14,6 +14,7 @@ From: sriggi/caesar-base
 		- fits2root: Convert a FITS image to Caesar image and save it in ROOT file  
 		- root2fits: Convert a Caesar image stored in ROOT file to FITS image
 		- bkgfinder: Find bkg & rms maps from image in ROOT/FITS format
+		- residualfinder: Find residual maps with compact source subtracted from image
 		- saliencyfinder: Find saliency map from image in ROOT/FITS format
 		- sfinder: Find sources in FITS/ROOT image
 		- sfindersub: Generate sfinder config and submit run to batch system
@@ -33,7 +34,14 @@ From: sriggi/caesar-base
 		- sregiontagger: Tag sources (real/fake/unknown,...) matching with DS9 regions with region provided tags
 		- scatmatchfinder: Find cross-matches with list of Caesar source catalogs
 		- sastrocatmatchfinder: Find cross-matches with list of Astronomical ascii catalogs
-		
+		- simsourcematch: Cross-match simulated sources with extracted catalogs (Caesar, Aegean, Selavy)
+		- sasciiexporter: Export source catalog in ROOT format in ASCII table format
+		- scountsunfolder: Unfold source counts flux density data in ROOT histogram format using a parametrized response matrix
+		- smatchfinder: Cross-match multiple Caesar ROOT catalog each other
+		- smvclassifier: Run neural network source component classifier on input Caesar ROOT catalog
+		- srefitter: Refit a list of input Caesar sources
+		- streewriter: Create simpler summary ROOT TTree files for island and component from ROOT Caesar catalog
+	
 	To launch an app do the following:
 	
 		$ singularity run --app [APP_NAME] [SINGULARITY_IMAGE_NAME] [APP_ARGUMENTS]
@@ -44,7 +52,7 @@ From: sriggi/caesar-base
 
 %labels
 	Maintainer Simone Riggi (INAF-OACT)
-	Version v1.0
+	Version v1.1.2
 
 %environment
 	
@@ -175,7 +183,7 @@ From: sriggi/caesar-base
 	ls -la "$ROOTSYS/etc/cmake"
 
 	echo "Configuring cmake build for caesar"
-	cmake -DCMAKE_INSTALL_PREFIX="$CAESAR_INSTALL_DIR" -DENABLE_R=OFF -DBUILD_APPS=ON -DENABLE_OPENMP=ON -DENABLE_MPI=ON -DENABLE_TEST=OFF -DBUILD_DOC=OFF -DENABLE_VTK=OFF "$CAESAR_SRC_DIR"
+	cmake -DCMAKE_INSTALL_PREFIX="$CAESAR_INSTALL_DIR" -DENABLE_R=OFF -DBUILD_APPS=ON -DENABLE_OPENMP=ON -DENABLE_MPI=ON -DENABLE_TEST=OFF -DBUILD_DOC=OFF -DENABLE_VTK=OFF "${CAESAR_SRC_DIR}"
 
 	echo "Building caesar..."
 	make
@@ -233,6 +241,9 @@ From: sriggi/caesar-base
 
 %apprun bkgfinder
 	exec FindBkg "$@"
+
+%apprun residualfinder
+	exec FindSourceResidual "$@"
 
 %apprun sfinder
 	exec FindSourceMPI "$@"	
@@ -293,6 +304,29 @@ From: sriggi/caesar-base
 
 %apprun sastrocatmatchfinder
 	exec SourceAstroCatalogsMatchFinder "$@"
+
+%apprun simsourcematch
+	exec CrossMatchSimSources "$@"
+
+%apprun sasciiexporter
+	exec SourceAsciiExporter "$@"
+
+%apprun scountsunfolder
+	exec SourceCountsUnfolder "$@"
+
+%apprun smatchfinder
+	exec SourceMatchFinder "$@"
+
+%apprun smvclassifier
+	exec SourceMVClassifier "$@"
+
+%apprun srefitter
+	exec SourceRefitter "$@"
+
+%apprun streewriter
+	exec SourceTreeWriter "$@"
+
+
 
 %apprun printenv
 	exec echo "PATH=$PATH CAESAR_DIR=$CAESAR_DIR"
